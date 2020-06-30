@@ -4,7 +4,7 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 // the Express server running on port 3001.
 module.exports = function (app) {
   app.use(
-    "/api",
+    ["/api"],
     createProxyMiddleware({
       target: "http://localhost:3001",
     })

@@ -3,15 +3,13 @@ import { NavLink } from "react-router-dom";
 
 const Navbar = () => {
   return (
-    <div className="three wide column">
-      <div className="ui vertical pointing menu">
-        <NavLink to="/tweets" className="item">
-          New Tweets
-        </NavLink>
-        <NavLink to="/rules" className="item">
-          Manage Rules
-        </NavLink>
-      </div>
+    <div className="ui two item menu">
+      <NavLink to="/tweets" className="item" target="_blank">
+        New Tweets
+      </NavLink>
+      <NavLink to="/rules" className="item" target="_blank">
+        Manage Rules
+      </NavLink>
     </div>
   );
 };

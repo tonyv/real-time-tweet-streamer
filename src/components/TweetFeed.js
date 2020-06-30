@@ -56,7 +56,7 @@ const TweetFeed = () => {
 
     if (error && error.detail) {
       return (
-        <div className="twelve wide column">
+        <div>
           <ErrorMessage key={error.title} error={error} styleType="warning" />
           <ErrorMessage
             key={message.title}
@@ -78,7 +78,7 @@ const TweetFeed = () => {
     if (isWaiting) {
       return (
         <React.Fragment>
-          <div className="twelve wide column">
+          <div>
             <ErrorMessage
               key={message.title}
               error={message}
@@ -98,17 +98,17 @@ const TweetFeed = () => {
   const showTweets = () => {
     if (tweets.length > 0) {
       return (
-        <div className="ui segments">
+        <React.Fragment>
           {tweets.map((tweet) => (
             <Tweet key={tweet.data.id} json={tweet} />
           ))}
-        </div>
+        </React.Fragment>
       );
     }
   };
 
   return (
-    <div className="twelve wide stretched column">
+    <div>
       {errorMessage()}
       {waitingMessage()}
       {showTweets()}
