@@ -23,7 +23,7 @@ class App extends React.Component {
           </div>
         </h1>
 
-        <div className="ui grid">
+        <div className="ui container">
           <BrowserRouter>
             <Navbar />
             <Route exact path="/" component={RuleList} />

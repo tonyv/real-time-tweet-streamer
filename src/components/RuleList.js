@@ -133,7 +133,7 @@ const RuleList = () => {
   }, []);
 
   return (
-    <div className="twelve wide column">
+    <div>
       <form onSubmit={(e) => createRule(e)}>
         <div className="ui fluid action input">
           <input

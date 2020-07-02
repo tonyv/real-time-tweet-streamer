@@ -2,7 +2,7 @@ import React from "react";
 
 const Spinner = () => {
   return (
-    <div className="twelve wide column">
+    <div>
       <div className="ui active centered large inline loader">
         <img
           className="ui image"
