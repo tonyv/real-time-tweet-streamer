@@ -12,9 +12,12 @@ const reducer = (state, action) => {
         tweets: [action.payload, ...state.tweets],
         error: null,
         isWaiting: false,
+        errors: [],
       };
     case "show_error":
       return { ...state, error: action.payload, isWaiting: false };
+    case "add_errors":
+      return { ...state, errors: action.payload, isWaiting: false };
     case "update_waiting":
       return { ...state, error: null, isWaiting: true };
     default:
@@ -33,7 +36,12 @@ const TweetFeed = () => {
   const { tweets, error, isWaiting } = state;
 
   const streamTweets = () => {
-    const socket = socketIOClient("/");
+    let socket = socketIOClient("/");
+
+    if (process.env.NODE_ENV === "development") {
+      socket = socketIOClient("http://localhost:3001/");
+    }
+
     socket.on("connect", () => {});
     socket.on("tweet", (json) => {
       if (json.data) {
@@ -46,9 +54,13 @@ const TweetFeed = () => {
     socket.on("error", (data) => {
       dispatch({ type: "show_error", payload: data });
     });
+    socket.on("authError", (data) => {
+      console.log("data =>", data);
+      dispatch({ type: "add_errors", payload: [data] });
+    });
   };
 
-  const errorMessage = () => {
+  const reconnectMessage = () => {
     const message = {
       title: "Reconnecting",
       detail: "Please wait while we reconnect to the stream.",
@@ -66,6 +78,16 @@ const TweetFeed = () => {
           <Spinner />
         </div>
       );
+    }
+  };
+
+  const errorMessage = () => {
+    const { errors } = state;
+
+    if (errors && errors.length > 0) {
+      return errors.map((error) => (
+        <ErrorMessage key={error.title} error={error} styleType="negative" />
+      ));
     }
   };
 
@@ -109,6 +131,7 @@ const TweetFeed = () => {
 
   return (
     <div>
+      {reconnectMessage()}
       {errorMessage()}
       {waitingMessage()}
       {showTweets()}
