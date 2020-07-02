@@ -122,12 +122,17 @@ const RuleList = () => {
     (async () => {
       dispatch({ type: "change_loading_status", payload: true });
 
-      const response = await axios.get(rulesURL);
-      const { data: payload = [] } = response.data.body;
-      dispatch({
-        type: "show_rules",
-        payload,
-      });
+      try {
+        const response = await axios.get(rulesURL);
+        const { data: payload = [] } = response.data.body;
+        dispatch({
+          type: "show_rules",
+          payload,
+        });
+      } catch (e) {
+        dispatch({ type: "add_errors", payload: [e.response.data] });
+      }
+
       dispatch({ type: "change_loading_status", payload: false });
     })();
   }, []);

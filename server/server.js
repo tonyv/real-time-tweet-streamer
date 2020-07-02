@@ -37,6 +37,15 @@ const errorMessage = {
   detail: "Waiting for new Tweets to be posted...",
 };
 
+const authMessage = {
+  title: "Could not authenticate",
+  details: [
+    `Please make sure your consumer key and secret are correct. 
+      If using Glitch, remix this app and add it to the .env file`,
+  ],
+  type: "https://developer.twitter.com",
+};
+
 const sleep = async (delay) => {
   return new Promise((resolve) => setTimeout(() => resolve(true), delay));
 };
@@ -58,6 +67,10 @@ async function bearerToken(auth) {
 }
 
 app.get("/api/rules", async (req, res) => {
+  if (!CONSUMER_KEY || !CONSUMER_SECRET) {
+    res.status(400).send(authMessage);
+  }
+
   const token = await bearerToken({ CONSUMER_KEY, CONSUMER_SECRET });
   const requestConfig = {
     url: rulesURL,
@@ -147,7 +160,9 @@ io.on("connection", async (socket) => {
     const token = await bearerToken({ CONSUMER_KEY, CONSUMER_SECRET });
     io.emit("connect", "Client connected");
     const stream = streamTweets(io, token);
-  } catch (e) {}
+  } catch (e) {
+    io.emit("authError", authMessage);
+  }
 });
 
 console.log("NODE_ENV is", process.env.NODE_ENV);
