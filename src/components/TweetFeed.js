@@ -36,10 +36,12 @@ const TweetFeed = () => {
   const { tweets, error, isWaiting } = state;
 
   const streamTweets = () => {
-    let socket = socketIOClient("/");
+    let socket;
 
     if (process.env.NODE_ENV === "development") {
       socket = socketIOClient("http://localhost:3001/");
+    } else {
+      socket = socketIOClient("/");
     }
 
     socket.on("connect", () => {});

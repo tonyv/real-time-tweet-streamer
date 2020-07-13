@@ -17,12 +17,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const server = http.createServer(app);
 const io = socketIo(server);
 
-const CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY;
-const CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET;
+const BEARER_TOKEN = process.env.TWITTER_BEARER_TOKEN;
 
 let timeout = 0;
-
-const bearerTokenURL = new URL("https://api.twitter.com/oauth2/token");
 
 const streamURL = new URL(
   "https://api.twitter.com/labs/1/tweets/stream/filter?format=detailed&expansions=author_id"
@@ -40,38 +37,22 @@ const errorMessage = {
 const authMessage = {
   title: "Could not authenticate",
   details: [
-    `Please make sure your consumer key and secret are correct. 
+    `Please make sure your bearer token is correct. 
       If using Glitch, remix this app and add it to the .env file`,
   ],
-  type: "https://developer.twitter.com",
+  type: "https://developer.twitter.com/en/docs/authentication",
 };
 
 const sleep = async (delay) => {
   return new Promise((resolve) => setTimeout(() => resolve(true), delay));
 };
 
-async function bearerToken(auth) {
-  const requestConfig = {
-    url: bearerTokenURL,
-    auth: {
-      user: CONSUMER_KEY,
-      pass: CONSUMER_SECRET,
-    },
-    form: {
-      grant_type: "client_credentials",
-    },
-  };
-
-  const response = await post(requestConfig);
-  return JSON.parse(response.body).access_token;
-}
-
 app.get("/api/rules", async (req, res) => {
-  if (!CONSUMER_KEY || !CONSUMER_SECRET) {
+  if (!BEARER_TOKEN) {
     res.status(400).send(authMessage);
   }
 
-  const token = await bearerToken({ CONSUMER_KEY, CONSUMER_SECRET });
+  const token = BEARER_TOKEN;
   const requestConfig = {
     url: rulesURL,
     auth: {
@@ -94,7 +75,11 @@ app.get("/api/rules", async (req, res) => {
 });
 
 app.post("/api/rules", async (req, res) => {
-  const token = await bearerToken({ CONSUMER_KEY, CONSUMER_SECRET });
+  if (!BEARER_TOKEN) {
+    res.status(400).send(authMessage);
+  }
+
+  const token = BEARER_TOKEN;
   const requestConfig = {
     url: rulesURL,
     auth: {
@@ -117,6 +102,8 @@ app.post("/api/rules", async (req, res) => {
 });
 
 const streamTweets = (socket, token) => {
+  let stream;
+
   const config = {
     url: streamURL,
     auth: {
@@ -125,7 +112,11 @@ const streamTweets = (socket, token) => {
     timeout: 31000,
   };
 
-  const stream = request.get(config);
+  try {
+    stream = request.get(config);
+  } catch (e) {
+    io.emit("authError", authMessage);
+  }
 
   stream
     .on("data", (data) => {
@@ -157,10 +148,11 @@ const reconnect = async (stream, socket, token) => {
 
 io.on("connection", async (socket) => {
   try {
-    const token = await bearerToken({ CONSUMER_KEY, CONSUMER_SECRET });
+    const token = BEARER_TOKEN;
     io.emit("connect", "Client connected");
     const stream = streamTweets(io, token);
   } catch (e) {
+    console.log("here", e);
     io.emit("authError", authMessage);
   }
 });

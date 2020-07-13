@@ -87,10 +87,13 @@ const RuleList = () => {
     const message = {
       title: "No rules present",
       details: [
-        `There are currently no rules on this stream. Start by adding the rule 
-        below.`,
-        exampleRule,
-        ruleMeaning,
+        `Here are some example rules to help you get started`,
+        `1) Discovering new music videos: Imagine a dashboard that lets you see the music videos being shared across Twitter`,
+        "song youtube has:links context:55.810938279801470977",
+        `2) Finding remote developer job openings: Imagine creating a remote developer job listings app with remote developer job openings being shared across Twitter`,
+        "(developer OR engineer) remote (context:66.961961812492148736 OR context:66.850073441055133696)",
+        `3) Learning about personal finance and savings: Surface public conversations about personal finance and savings happening on Twitter`,
+        "context:66.847888632711061504 has:links -is:retweet savings",
       ],
       type: operatorsURL,
     };
